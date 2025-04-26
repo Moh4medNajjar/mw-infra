@@ -3,8 +3,7 @@
 *.tfstate.backup
 *.tfplan
 
-# Sensitive variable overrides (only if they contain secrets)
-terraform.tfvars
+
 
 # Crash logs
 crash.log
