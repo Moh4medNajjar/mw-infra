@@ -1,0 +1,14 @@
+[
+{
+"name": "mw_app",
+"image": "913524939982.dkr.ecr.eu-west-3.amazonaws.com/ecr-repo-integ-app-mw:latest",
+"essential": true,
+"portMappings": [
+{
+"containerPort": 80,
+"hostPort": 80,
+"protocol": "tcp"
+}
+]
+}
+]

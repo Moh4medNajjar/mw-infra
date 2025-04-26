@@ -1,0 +1,17 @@
+# Terraform state
+*.tfstate
+*.tfstate.backup
+*.tfplan
+
+# Sensitive variable overrides (only if they contain secrets)
+terraform.tfvars
+
+# Crash logs
+crash.log
+
+# Local .terraform dir with downloaded providers/modules
+.terraform/
+
+# .terraform.lock.hcl: optional, but RECOMMENDED to commit if you want consistent provider versions
+# Otherwise, ignore it:
+# .terraform.lock.hcl
