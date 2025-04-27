@@ -84,7 +84,7 @@ resource "aws_launch_template" "mw_launch_template" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name        = "nat-gateway-${local.name_suffix}"
+      Name        = "ec2-${local.name_suffix}"
       Owner       = lookup(var.tags, "Application")
       Application = lookup(var.tags, "Application")
       Project     = lookup(var.tags, "Project")
@@ -94,7 +94,7 @@ resource "aws_launch_template" "mw_launch_template" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    echo ECS_CLUSTER=my-ecs-cluster >> /etc/ecs/ecs.config
+    echo ECS_CLUSTER=ecs-cluster-integ-app-eg-mw >> /etc/ecs/ecs.config
   EOF
   )
 
@@ -119,7 +119,7 @@ resource "aws_autoscaling_group" "mw_asg" {
   vpc_zone_identifier = var.subnet_ids
   health_check_type   = "EC2"
   force_delete        = true
-  target_group_arns   = var.target_group_arns
+  //target_group_arns   = var.target_group_arns
 
   tag {
     key                 = "Name"

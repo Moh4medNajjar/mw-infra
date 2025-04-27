@@ -25,7 +25,7 @@ container_name = "mw_app"
 container_port = 80
 cpu            = 256
 memory         = "512"
-desired_count  = 2
+desired_count  = 1
 family         = "mw-family"
 service_name   = "mw-service"
 
