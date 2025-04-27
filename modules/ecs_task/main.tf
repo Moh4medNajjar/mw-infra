@@ -2,9 +2,33 @@ locals {
   name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}-${lookup(var.tags, "Application")}"
 }
 
+# resource "aws_ecs_task_definition" "ecs_task" {
+#   family                  = var.family
+#   container_definitions   = var.container_definitions
+#   requires_compatibilities = ["EC2"]
+#   network_mode            = "awsvpc"
+#   cpu                     = 256
+#   memory                  = 512
+#   execution_role_arn      = aws_iam_role.execution_role.arn
+#   task_role_arn           = aws_iam_role.task_role.arn
+#
+#   tags = {
+#     Name        = "ecs-task-${local.name_suffix}"
+#     Owner       = lookup(var.tags, "Owner")
+#     Application = lookup(var.tags, "Application")
+#     Project     = lookup(var.tags, "Project")
+#     Environment = lookup(var.tags, "Environment")
+#   }
+#
+#   depends_on = [aws_iam_role.execution_role, aws_iam_role.task_role]
+# }
+
+
+
 resource "aws_ecs_task_definition" "ecs_task" {
-  family                   = var.family
-  container_definitions   = var.container_definitions
+  count                   = length(var.family)
+  family                  = var.family[count.index]
+  container_definitions   = file(var.container_definitions[count.index])
   requires_compatibilities = ["EC2"]
   network_mode            = "awsvpc"
   cpu                     = 256
@@ -13,7 +37,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
   task_role_arn           = aws_iam_role.task_role.arn
 
   tags = {
-    Name        = "ecs-task-${local.name_suffix}"
+    Name        = "ecs-task-${local.name_suffix}-${count.index}"
     Owner       = lookup(var.tags, "Owner")
     Application = lookup(var.tags, "Application")
     Project     = lookup(var.tags, "Project")
@@ -22,6 +46,11 @@ resource "aws_ecs_task_definition" "ecs_task" {
 
   depends_on = [aws_iam_role.execution_role, aws_iam_role.task_role]
 }
+
+
+
+
+
 //***********************************************************************
 resource "aws_security_group" "ecs_task_sg" {
   name_prefix = "ecs-task-sg"
@@ -42,10 +71,11 @@ resource "aws_security_group" "ecs_task_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 //***********************************************************************
 
 resource "aws_iam_role" "execution_role" {
-  name = "${var.family}-execution-role"
+  name = "task-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -104,33 +134,64 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_attachments" {
   role       = aws_iam_role.task_role.name
   policy_arn = each.value
 }
+//***********************************************************************
+
+# resource "aws_ecs_service" "ecs_service" {
+#   name            = var.service_name
+#   cluster         = var.cluster_name
+#   task_definition = aws_ecs_task_definition.ecs_task.arn
+#   desired_count   = var.desired_count
+#   launch_type     = "EC2"
+#
+#   /*capacity_provider_strategy {
+#     capacity_provider = var.capacity_provider_name
+#     weight            = 1
+#   }*/
+#
+#   network_configuration {
+#     subnets          = var.subnet_ids
+#     security_groups  = [aws_security_group.ecs_task_sg.id]
+#     assign_public_ip = false
+#   }
+#
+#   load_balancer {
+#     target_group_arn = var.target_group_arn
+#     container_name   = var.container_name
+#     container_port   = var.container_port
+#   }
+#
+#   tags = {
+#     Name        = "ecs-service-${local.name_suffix}"
+#     Owner       = lookup(var.tags, "Owner")
+#     Application = lookup(var.tags, "Application")
+#     Project     = lookup(var.tags, "Project")
+#     Environment = lookup(var.tags, "Environment")
+#   }
+#   depends_on = [var.alb_listener_arn]
+# }
 
 resource "aws_ecs_service" "ecs_service" {
-  name            = var.service_name
-  cluster         = var.cluster_name
-  task_definition = aws_ecs_task_definition.ecs_task.arn
-  desired_count   = var.desired_count
-  launch_type     = "EC2"
-
-  /*capacity_provider_strategy {
-    capacity_provider = var.capacity_provider_name
-    weight            = 1
-  }*/
+  count            =  length(var.service_name)
+  name             = "${var.service_name[count.index]}-${count.index}"  # Ajout de count.index pour nommer distinctement les services
+  cluster          = var.cluster_name
+  task_definition  = aws_ecs_task_definition.ecs_task[count.index].arn  # Associe chaque service à une tâche ECS différente
+  desired_count    = var.desired_count
+  launch_type      = "EC2"
 
   network_configuration {
     subnets          = var.subnet_ids
-    security_groups  = [aws_security_group.ecs_task_sg.id]
+    security_groups  = [aws_security_group.ecs_task_sg.id]  # Utilisation de count.index pour lier chaque service au SG
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = var.target_group_arn
-    container_name   = var.container_name
+    container_name   = var.container_name[count.index]
     container_port   = var.container_port
   }
 
   tags = {
-    Name        = "ecs-service-${local.name_suffix}"
+    Name        = "ecs-service-${local.name_suffix}-${count.index}"
     Owner       = lookup(var.tags, "Owner")
     Application = lookup(var.tags, "Application")
     Project     = lookup(var.tags, "Project")
@@ -139,6 +200,4 @@ resource "aws_ecs_service" "ecs_service" {
 
   depends_on = [var.alb_listener_arn]
 }
-
-
 

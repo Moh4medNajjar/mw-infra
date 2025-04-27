@@ -21,14 +21,14 @@ max_size = 2
 
 min_size = 1
 
-container_name = "mw_app"
+# container_name = "mw_app"
 
 container_port = 80
 cpu            = 256
 memory         = "512"
 desired_count  = 1
-family         = "mw-family"
-service_name   = "mw-service"
+# family         = "mw-family"
+# service_name   = "mw-service"
 
 rds_allocated_storage = 20
 rds_instance_class = "db.t3.micro"
@@ -40,3 +40,10 @@ s3_versioning = "Enabled"
 
 
 
+
+
+
+container_definitions = ["./container_definitions/mongo.json","./container_definitions/api.json", "./container_definitions/web.json"]
+family = ["mongo", "api", "web"]
+container_name = ["mongo", "api", "web"]
+service_name =["mongo", "api", "web"]

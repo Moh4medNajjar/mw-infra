@@ -47,3 +47,7 @@ variable password {}
 
 variable s3_names {}
 variable s3_versioning {}
+
+
+
+variable container_definitions {}

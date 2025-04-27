@@ -74,16 +74,16 @@ module "mw_ecs_task" {
   alb_listener_arn       = module.mw_alb.alb_listener_arn
   capacity_provider_name = module.mw_cp.capacity_provider_name
   cluster_name           = module.mw_ecs.ecs_cluster_name
-  container_definitions  = file("./container_definitions/mw_container_def.json")
-
-
-  container_name         = var.container_name
+  # container_definitions  = file("./container_definitions/mw_container_def.json")
+  # container_definitions  = file(var.container_definitions) #list
+  container_definitions  = var.container_definitions
+  container_name         = var.container_name #list
   container_port         = var.container_port
   cpu                    = var.cpu
   desired_count          = var.desired_count
-  family                 = var.family
+  family                 = var.family #list
   memory                 = var.memory
-  service_name           = var.service_name
+  service_name           = var.service_name #list
   subnet_ids             = [module.mw_private_subnets.subnet_ids[0], module.mw_private_subnets.subnet_ids[1]]
   tags                   = var.tags
   target_group_arn       = module.mw_alb.alb_target_group_arn

@@ -8,12 +8,6 @@
       }
     ],
     "essential": true,
-    "dependsOn": [
-      {
-        "containerName": "mongo",
-        "condition": "START"
-      }
-    ],
     "environment": []
   }
 ]

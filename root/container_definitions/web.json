@@ -8,12 +8,7 @@
       }
     ],
     "essential": true,
-    "dependsOn": [
-      {
-        "containerName": "api",
-        "condition": "START"
-      }
-    ],
+
     "environment": []
   }
 ]
