@@ -39,3 +39,11 @@ variable "family" {}
 
 variable "memory" {}
 variable "service_name" {}
+
+variable rds_allocated_storage {}
+variable rds_instance_class {}
+variable rds_username {}
+variable password {}
+
+variable s3_names {}
+variable s3_versioning {}

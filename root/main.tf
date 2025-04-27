@@ -75,6 +75,8 @@ module "mw_ecs_task" {
   capacity_provider_name = module.mw_cp.capacity_provider_name
   cluster_name           = module.mw_ecs.ecs_cluster_name
   container_definitions  = file("./container_definitions/mw_container_def.json")
+
+
   container_name         = var.container_name
   container_port         = var.container_port
   cpu                    = var.cpu
@@ -91,9 +93,23 @@ module "mw_ecs_task" {
 
 
 
+module "mw_rds" {
+  source = "../modules/rds"
+  allocated_storage = var.rds_allocated_storage
+  instance_class = var.rds_instance_class
+  username =var.rds_username
+  vpc_id =  module.mw-vpc.vpc_id
+  tags = var.tags
+  subnets_id_rds = [module.mw_private_subnets.subnet_ids[2], module.mw_private_subnets.subnet_ids[3]]
+  password = var.password
+}
 
-
-
+module "mw_s3" {
+  source = "../modules/s3"
+  s3_names       = var.s3_names
+  s3_versioning = var.s3_versioning
+  tags          = var.tags
+}
 
 
 

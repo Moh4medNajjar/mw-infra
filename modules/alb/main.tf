@@ -115,7 +115,7 @@ resource "aws_lb_listener" "mw_listener" {
     Environment = lookup(var.tags, "Environment")
   }
 
-  depends_on = [
+  /*depends_on = [
     aws_lb_target_group.alb_tg
-  ]
+  ]*/
 }

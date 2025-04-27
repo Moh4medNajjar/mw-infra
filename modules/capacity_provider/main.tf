@@ -85,7 +85,7 @@ resource "aws_launch_template" "mw_launch_template" {
     resource_type = "instance"
     tags = {
       Name        = "ec2-${local.name_suffix}"
-      Owner       = lookup(var.tags, "Application")
+      Owner       = lookup(var.tags, "Owner")
       Application = lookup(var.tags, "Application")
       Project     = lookup(var.tags, "Project")
       Environment = lookup(var.tags, "Environment")
