@@ -31,14 +31,16 @@ module "mw_nat_gateway" {
 
 
 
-module "mw_bastion_host" {
+
+
+/*module "mw_bastion_host" {
   source = "../modules/bastion"
   bastion_instance_type = var.bastion_instance_type
   bucketname            = module.mw_s3.buckets_name[0]
   subnet_id_public      = module.mw_public_subnets.subnet_ids[0]
   tags                  = var.tags
   vpc_id                = module.mw_vpc.vpc_id
-}
+}*/
 
 
 

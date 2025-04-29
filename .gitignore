@@ -3,8 +3,6 @@
 *.tfstate.backup
 *.tfplan
 
-
-
 # Crash logs
 crash.log
 

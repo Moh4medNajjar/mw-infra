@@ -26,7 +26,7 @@ resource "aws_s3_bucket_versioning" "my_s3_versioning" {
   }
 }
 
-#server side encruption
+#server side encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "my_s3_encryption" {
   count                    = length(var.s3_names)
   bucket = aws_s3_bucket.my_s3[count.index].id

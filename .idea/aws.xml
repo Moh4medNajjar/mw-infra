@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="accountSettings">
+    <option name="activeProfile" value="profile:mohamed" />
     <option name="activeRegion" value="eu-west-3" />
     <option name="recentlyUsedProfiles">
       <list>
+        <option value="profile:mohamed" />
         <option value="profile:default" />
       </list>
     </option>
@@ -12,5 +14,8 @@
         <option value="eu-west-3" />
       </list>
     </option>
+  </component>
+  <component name="connectionManager">
+    <option name="activeConnectionId" value="sso-session:mohamed" />
   </component>
 </project>

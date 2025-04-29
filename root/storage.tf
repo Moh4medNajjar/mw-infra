@@ -1,4 +1,4 @@
-module "mw_rds" {
+/*module "mw_rds" {
   source            = "../modules/rds"
   allocated_storage = var.rds_allocated_storage
   instance_class    = var.rds_instance_class
@@ -15,3 +15,4 @@ module "mw_s3" {
   s3_versioning = var.s3_versioning
   tags          = var.tags
 }
+*/

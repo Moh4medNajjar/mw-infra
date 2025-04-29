@@ -1,6 +1,6 @@
 
 
-locals {
+/*locals {
   name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}"
 }
 ############log group
@@ -15,6 +15,8 @@ resource "aws_cloudwatch_log_group" "my_log_group" {
     Environment = lookup(var.tags, "Environment")
   }
 }
+
+
 
 
 module "mw_cp" {
@@ -61,3 +63,5 @@ module "mw_ecs_task" {
   tags                  = var.tags
 
 }
+
+*/
