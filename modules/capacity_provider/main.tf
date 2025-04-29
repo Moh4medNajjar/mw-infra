@@ -1,8 +1,8 @@
 locals {
-  name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}-${lookup(var.tags, "Application")}"
+  name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}"
 }
 
-resource "aws_security_group" "ssm-sg" {
+resource "aws_security_group" "my_ssm-sg" {
   vpc_id = var.vpc_id
 
   ingress {
@@ -22,7 +22,7 @@ resource "aws_security_group" "ssm-sg" {
   tags = {
     Name        = "ssm_sg-${local.name_suffix}"
     Owner       = lookup(var.tags, "Owner")
-    Application = lookup(var.tags, "Application")
+    Application = "security"
     Project     = lookup(var.tags, "Project")
     Environment = lookup(var.tags, "Environment")
   }
@@ -30,7 +30,7 @@ resource "aws_security_group" "ssm-sg" {
 
 //*************************************************************************************************
 
-resource "aws_iam_role" "ecs_instance_role" {
+resource "aws_iam_role" "my_ecs_instance_role" {
   name               = "ecs-instance-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -46,23 +46,23 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_instance_role_attachments" {
+resource "aws_iam_role_policy_attachment" "my_ecs_instance_role_attachments" {
   for_each = toset([
     "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   ])
-  role       = aws_iam_role.ecs_instance_role.name
+  role       = aws_iam_role.my_ecs_instance_role.name
   policy_arn = each.value
 }
 
-resource "aws_iam_instance_profile" "ecs_instance_role" {
+resource "aws_iam_instance_profile" "my_ecs_instance_profile" {
   name = "ecs-instance-role"
-  role = aws_iam_role.ecs_instance_role.name
+  role = aws_iam_role.my_ecs_instance_role.name
 }
 
 //*************************************************************************************************
 
-data "aws_ami" "ecs_ami" {
+data "aws_ami" "my_ecs_ami" {
   most_recent = true
   filter {
     name   = "name"
@@ -71,14 +71,14 @@ data "aws_ami" "ecs_ami" {
   owners = ["amazon"]
 }
 
-resource "aws_launch_template" "mw_launch_template" {
+resource "aws_launch_template" "my_launch_template" {
   name                   = "lt-${local.name_suffix}"
-  image_id               = data.aws_ami.ecs_ami.id
+  image_id               = data.aws_ami.my_ecs_ami.id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.ssm-sg.id]
+  vpc_security_group_ids = [aws_security_group.my_ssm-sg.id]
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.ecs_instance_role.name
+    name = aws_iam_instance_profile.my_ecs_instance_profile.name
   }
 
   tag_specifications {
@@ -86,7 +86,7 @@ resource "aws_launch_template" "mw_launch_template" {
     tags = {
       Name        = "ec2-${local.name_suffix}"
       Owner       = lookup(var.tags, "Owner")
-      Application = lookup(var.tags, "Application")
+      Application = "computing"
       Project     = lookup(var.tags, "Project")
       Environment = lookup(var.tags, "Environment")
     }
@@ -94,25 +94,25 @@ resource "aws_launch_template" "mw_launch_template" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    echo ECS_CLUSTER=ecs-cluster-integ-app-eg-mw >> /etc/ecs/ecs.config
+    echo ECS_CLUSTER=ecs-cluster-integ-mw >> /etc/ecs/ecs.config
   EOF
   )
 
   depends_on = [
-    aws_iam_instance_profile.ecs_instance_role
+    aws_iam_instance_profile.my_ecs_instance_profile
   ]
 }
 
 //**********************************************************************************************************************
 
-resource "aws_autoscaling_group" "mw_asg" {
+resource "aws_autoscaling_group" "my_asg" {
   name                      = "asg-${local.name_suffix}"
   max_size                  = var.max_size
   min_size                  = var.min_size
   desired_capacity          = var.desired_capacity
 
   launch_template {
-    id      = aws_launch_template.mw_launch_template.id
+    id      = aws_launch_template.my_launch_template.id
     version = "$Latest"
   }
 
@@ -128,36 +128,32 @@ resource "aws_autoscaling_group" "mw_asg" {
   }
 
   depends_on = [
-    aws_launch_template.mw_launch_template
+    aws_launch_template.my_launch_template
   ]
 }
 
 //**********************************************************************************************************************
 
-resource "aws_ecs_capacity_provider" "mw_cp" {
+resource "aws_ecs_capacity_provider" "my_cp" {
   name = "mw-ecs-cp-${local.name_suffix}"
-
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.mw_asg.arn
-
+    auto_scaling_group_arn         = aws_autoscaling_group.my_asg.arn
     managed_scaling {
       status                    = "ENABLED"
-      target_capacity           = 80
+      target_capacity           = 90
       minimum_scaling_step_size = 1
-      maximum_scaling_step_size = 100
+      maximum_scaling_step_size = 10
       instance_warmup_period    = 300
     }
   }
-
   tags = {
     Name        = "ecs-cp-${local.name_suffix}"
     Owner       = lookup(var.tags, "Owner")
-    Application = lookup(var.tags, "Application")
+    Application = "computing" #lookup(var.tags, "Application")
     Project     = lookup(var.tags, "Project")
     Environment = lookup(var.tags, "Environment")
   }
-
   depends_on = [
-    aws_autoscaling_group.mw_asg
+    aws_autoscaling_group.my_asg
   ]
 }

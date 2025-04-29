@@ -1,6 +1,6 @@
 [
 {
-"name": "mw_app",
+"name": "second",
 "image": "913524939982.dkr.ecr.eu-west-3.amazonaws.com/ecr-repo-integ-app-mw:latest",
 "essential": true,
 

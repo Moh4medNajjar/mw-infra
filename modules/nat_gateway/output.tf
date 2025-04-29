@@ -1,3 +1,3 @@
-output "mw_private_rt" {
-  value = aws_route_table.mw_private_rt.id
+output "private_rt" {
+  value = aws_route_table.my_private_rt.id
 }

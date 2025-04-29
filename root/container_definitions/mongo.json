@@ -1,7 +1,0 @@
-[
-  {
-    "name": "mongo",
-    "image": "mongo:latest",
-    "essential": true
-  }
-]

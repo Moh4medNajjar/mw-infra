@@ -1,8 +1,9 @@
 locals {
-  name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}-${lookup(var.tags, "Application")}"
+
+  name_suffix = "${lookup(var.tags, "Environment")}-${lookup(var.tags, "Project")}"
 }
 
-resource "aws_subnet" "private_subnet" {
+resource "aws_subnet" "my_private_subnet" {
   count                    = length(var.private_cidrs)
   vpc_id                   = var.vpc_id
   cidr_block               = var.private_cidrs[count.index]
@@ -12,16 +13,15 @@ resource "aws_subnet" "private_subnet" {
   tags = {
     Name        = "prs-${count.index + 1}-${local.name_suffix}"
     Owner       = lookup(var.tags, "Owner")
-    Application = lookup(var.tags, "Application")
+    Application ="networking"
     Project     = lookup(var.tags, "Project")
     Environment = lookup(var.tags, "Environment")
   }
 }
 
-resource "aws_route_table_association" "public_assoc" {
+resource "aws_route_table_association" "my_private_assoc" {
   count          = length(var.private_cidrs)
-  subnet_id      = aws_subnet.private_subnet[count.index].id
+  subnet_id      = aws_subnet.my_private_subnet[count.index].id
   route_table_id = var.private_rt
-
-  depends_on = [aws_subnet.private_subnet]
+  depends_on = [aws_subnet.my_private_subnet]
 }
